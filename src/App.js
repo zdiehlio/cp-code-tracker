@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-import AppBar from '@material-ui/core/AppBar'
 import ToolBar from '@material-ui/core/Toolbar'
 import Menu from '@material-ui/icons/Menu'
-import IconButton from '@material-ui/core/IconButton'
-import Drawer from '@material-ui/core/Drawer'
 import superagent from 'superagent'
 import './App.css';
+import Signup from './components/Signup'
+import { Button, Drawer, IconButton, AppBar } from '@material-ui/core';
 
 class App extends Component {
   state = {
@@ -31,6 +30,8 @@ class App extends Component {
             </IconButton>
             <h3>CP Code Tracker</h3>
           </ToolBar>
+          <Button>Login</Button>
+          <Button>Logout</Button>
         </AppBar>
         <Drawer open={this.state.drawer} onClose={this.handleClick} >
           <div 
@@ -42,6 +43,7 @@ class App extends Component {
           Some Stuff
           </div>
         </Drawer>
+        <Signup />
       </div>
     );
   }
