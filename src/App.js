@@ -4,24 +4,25 @@ import ToolBar from '@material-ui/core/Toolbar'
 import Menu from '@material-ui/icons/Menu'
 import IconButton from '@material-ui/core/IconButton'
 import Drawer from '@material-ui/core/Drawer'
-import superagent from 'superagent'
-import { database } from './firebase'
+import { database, auth, googleAuthProvider } from './firebase'
+import Signin from './components/Signin'
 import './App.css';
 
 class App extends Component {
   state = {
     drawer: false,
     data: null,
-    newData: ''
+    newData: '',
+    currentUser: null
   }
 
   componentDidMount(){
-    // superagent.get(`https://damp-beyond-68108.herokuapp.com/`)
-    //   .then(res => console.log(res.text))
-    //whenever any value changes, fire callback
-    database.ref('/').on('value', (snapshot) => {
-      console.log(snapshot.val().name)
-      this.setState({ data: snapshot.val().newData})
+    // database.ref('/').on('value', (snapshot) => {
+    //   console.log(snapshot.val().name)
+    //   this.setState({ data: snapshot.val().newData})
+    // })
+    auth.onAuthStateChanged(currentUser => {
+      this.setState({ currentUser })
     })
   }
 
@@ -32,8 +33,8 @@ class App extends Component {
 
   handleSubmit = (event) => {
     event.preventDefault()
-    // const newData = database.ref().child('newData').set(this.state.newData)
-    const newData = database.ref().child('newData').push(this.state.newData)
+    const newData = database.ref().child('newData').set(this.state.newData)
+    // const newData = database.ref().child('newData').push(this.state.newData)
 
   }
 
@@ -41,8 +42,16 @@ class App extends Component {
     this.setState({ newData: event.target.value})
   }
 
+  handleAuth = () => {
+    this.state.currentUser ? auth.signOut() : auth.signInWithPopup(googleAuthProvider)
+    auth.onAuthStateChanged(currentUser => {
+      console.log('AUTH_CHANGED', currentUser)
+      this.setState({ currentUser })
+    })
+  }
+
   render() {
-    console.log(this.state.newData)
+    console.log(this.state.currentUser)
     return (
       <div className="App">
         <AppBar position="static" >
@@ -51,11 +60,11 @@ class App extends Component {
               <Menu />  
             </IconButton>
             <h3>CP Code Tracker</h3>
-            <div>{this.state.newData.map(val => val)}</div>
+            <Signin handleAuth = {this.handleAuth} currentUser ={this.state.currentUser} />
           </ToolBar>
         </AppBar>
         
-        <Drawer open={this.state.drawer} onClose={this.handleClick} >
+        {/* <Drawer open={this.state.drawer} onClose={this.handleClick} >
           <div 
             tabIndex={0}
             role='button'
@@ -64,7 +73,7 @@ class App extends Component {
           >
           Some Stuff
           </div>
-        </Drawer>
+        </Drawer> */}
         <div color='black'>{this.state.data}</div>
         <form onSubmit={this.handleSubmit}>
           <input value={this.state.newData} onChange={this.handleChange} />
